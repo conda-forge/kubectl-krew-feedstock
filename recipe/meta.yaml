@@ -14,7 +14,7 @@ source:
     sha256: dd11ef2d56a0897d38ac219f17332effbd09a3c6a1f68974635b925ba129cd35
 
 build:
-  number: 0
+  number: 1
   script:
     - pushd {{ pkg_src }}
     - go build -ldflags "-w -X sigs.k8s.io/krew/internal/version.gitTag=v{{ version }}" -v -o $PREFIX/bin/kubectl-krew -tags netgo ./cmd/krew  # [not win]
