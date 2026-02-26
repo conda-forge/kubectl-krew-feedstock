@@ -1,5 +1,5 @@
 {% set goname = "github.com/kubernetes-sigs/krew" %}
-{% set version = "0.4.5" %}
+{% set version = "0.5.0" %}
 
 {% set name = goname.split('/')[-1] %}
 {% set pkg_src = ('src/'+goname).replace("/",os.sep) %}
@@ -11,10 +11,10 @@ package:
 source:
   - folder: {{ pkg_src }}
     url: https://{{ goname }}/archive/v{{ version }}.tar.gz
-    sha256: 2f0d6bd094c7078f2d69e69094c60bdd461d1a9d08994546c6e1e83d6a4b85bf
+    sha256: 2a9a751d63f67dfc21998774ec9cccf19aa5f1a22596f43226e211578f9f6469
 
 build:
-  number: 1
+  number: 0
   script:
     - pushd {{ pkg_src }}
     - go build -ldflags "-w -X sigs.k8s.io/krew/internal/version.gitTag=v{{ version }}" -v -o $PREFIX/bin/kubectl-krew -tags netgo ./cmd/krew  # [not win]
