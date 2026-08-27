@@ -1,0 +1,59 @@
+schema_version: 1
+
+context:
+  name: kubectl-krew
+  version: 0.5.0
+
+package:
+  name: ${{ name }}
+  version: ${{ version }}
+
+source:
+  url: https://github.com/kubernetes-sigs/krew/archive/v${{ version }}.tar.gz
+  sha256: 2a9a751d63f67dfc21998774ec9cccf19aa5f1a22596f43226e211578f9f6469
+  target_directory: src
+
+build:
+  number: 1
+  script:
+    - cd src
+    - if: unix
+      then: go build -ldflags "-w -X sigs.k8s.io/krew/internal/version.gitTag=v${{ version }}" -v -o "$PREFIX/bin/kubectl-krew" -tags netgo ./cmd/krew
+    - if: win
+      then: go build -ldflags "-w -X sigs.k8s.io/krew/internal/version.gitTag=v${{ version }}" -v -o "%LIBRARY_BIN%\kubectl-krew.exe" -tags netgo ./cmd/krew
+    - go-licenses save ./cmd/krew --save_path ../library_licenses
+    - if: unix
+      then: chmod -R u+w $(go env GOPATH) && rm -r $(go env GOPATH)
+
+requirements:
+  build:
+    - ${{ compiler('go-nocgo') }}
+    - go-licenses
+
+tests:
+  - package_contents:
+      bin:
+        - kubectl-krew
+  - requirements:
+      run:
+        - if: not riscv64 and not (win and arm64)
+          then: git
+    script:
+      - kubectl-krew version
+      - if: not riscv64 and not (win and arm64)
+        then: kubectl-krew update
+      - if: not win and not riscv64
+        then: kubectl-krew install ctx
+
+about:
+  homepage: https://github.com/kubernetes-sigs/krew
+  repository: https://github.com/kubernetes-sigs/krew
+  license: Apache-2.0
+  license_file:
+    - src/LICENSE
+    - library_licenses/
+  summary: Krew is the package manager for kubectl plugins
+
+extra:
+  recipe-maintainers:
+    - dbast
